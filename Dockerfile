@@ -5,14 +5,14 @@
 #
 
 # Pull base image.
-FROM jlesage/baseimage-gui:alpine-3.10-v3.5.3
+FROM jlesage/baseimage-gui:alpine-3.18-v4
 
 # Docker image version is provided via build arg.
 ARG DOCKER_IMAGE_VERSION=unknown
 
 # Define software versions.
 ARG JSONLZ4_VERSION=c4305b8
-ARG LZ4_VERSION=1.8.1.2
+ARG LZ4_VERSION=1.9.4
 #ARG PROFILE_CLEANER_VERSION=2.36
 
 # Define software download URLs.
@@ -48,8 +48,7 @@ RUN \
 
 # Install Firefox.
 RUN \
-    add-pkg --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
-            --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
+    add-pkg \
             --upgrade chromium
 
 # Install extra packages.
@@ -89,27 +88,31 @@ RUN \
 #    rm -rf /tmp/* /tmp/.[!.]*
 
 # Enable log monitoring.
-RUN \
-    add-pkg yad && \
-    sed-patch 's|LOG_FILES=|LOG_FILES=/config/log/chromium/error.log|' /etc/logmonitor/logmonitor.conf && \
-    sed-patch 's|STATUS_FILES=|STATUS_FILES=/tmp/.chromium_shm_check|' /etc/logmonitor/logmonitor.conf
+# RUN \
+#     add-pkg yad && \
+#     sed-patch 's|LOG_FILES=|LOG_FILES=/config/log/chromium/error.log|' /etc/logmonitor/logmonitor.conf && \
+#     sed-patch 's|STATUS_FILES=|STATUS_FILES=/tmp/.chromium_shm_check|' /etc/logmonitor/logmonitor.conf
 
 # Adjust the openbox config.
-RUN \
-    # Maximize only the main window.
-    sed-patch 's/<application type="normal">/<application type="normal" title="Chromium">/' \
-        /etc/xdg/openbox/rc.xml && \
-    # Make sure the main window is always in the background.
-    sed-patch '/<application type="normal" title="Chromium">/a \    <layer>below</layer>' \
-        /etc/xdg/openbox/rc.xml
+# RUN \
+#     # Maximize only the main window.
+#     sed-patch 's/<application type="normal">/<application type="normal" title="Chromium">/' \
+#         /etc/xdg/openbox/rc.xml && \
+#     # Make sure the main window is always in the background.
+#     sed-patch '/<application type="normal" title="Chromium">/a \    <layer>below</layer>' \
+#         /etc/xdg/openbox/rc.xml
 
 # Generate and install favicons.
-RUN \
-    APP_ICON_URL=https://www.chromium.org/_/rsrc/1438879449147/config/customLogo.gif && \
-    install_app_icon.sh "$APP_ICON_URL"
+# RUN \
+#     APP_ICON_URL=https://www.chromium.org/_/rsrc/1438879449147/config/customLogo.gif && \
+#     install_app_icon.sh "$APP_ICON_URL"
 
 # Add files.
 COPY rootfs/ /
+
+RUN chmod +x /startapp.sh && \
+    chmod +x /usr/bin/firefox_wrapper && \
+    chmod +x /etc/logmonitor/notifications.d/shm_size/filter
 
 # Set environment variables.
 ENV APP_NAME="Chromium"
