@@ -112,7 +112,7 @@ COPY rootfs/ /
 
 RUN chmod +x /startapp.sh && \
     chmod +x /usr/bin/firefox_wrapper && \
-    chmod +x /etc/logmonitor/notifications.d/shm_size/filter
+    chmod +x /etc/cont-init.d/*
 
 # Set environment variables.
 ENV APP_NAME="Chromium"
